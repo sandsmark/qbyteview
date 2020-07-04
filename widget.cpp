@@ -4,12 +4,10 @@
 #include <QPainter>
 #include <qmath.h>
 
-Widget::Widget(QWidget *parent)
-    : QWidget(parent)
+Widget::Widget(const QString &path) :
+    m_path(path)
 {
-    //QFile file("/home/sandsmark/xo/crashfuck/patrick/09e96bb1-182d-4dce-944e-dcbdc3fd36dc.lines");
-    //QFile file("/home/sandsmark/Downloads/eames-20121011205606-base-base.dfu");
-    QFile file("/home/sandsmark/Downloads/u-boot.bin");
+    QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "Can't open file";
         return;
@@ -84,11 +82,19 @@ void Widget::paintEvent(QPaintEvent *)
             const unsigned char c = m_data[bc];
             int tx, ty;
             d2xy(ceil(n), bc, &tx, &ty);
-            painter.fillRect(tx * blockwidth, ty * blockheight, blockwidth, blockheight, QColor::fromHsv(c, m_entropy, m_buckets[c] * 127 / m_highest + 128));
+            painter.fillRect(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1, QColor::fromHsv(c, m_entropy, m_buckets[c] * 127 / m_highest + 128));
     }
     QPen pen;
     pen.setWidth(5);
     pen.setColor(Qt::blue);
     painter.setPen(pen);
     painter.drawRect(QRect(0, 0, n * blockwidth, n * blockheight));
+    painter.setPen(Qt::black);
+    QFont fnt = font();
+    fnt.setPixelSize(30);
+    painter.setFont(fnt);
+    QRect bounding;
+    painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
+    painter.fillRect(bounding, QColor(255, 255, 255, 128));
+    painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
 }

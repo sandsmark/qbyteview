@@ -8,7 +8,7 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = 0);
+    Widget(const QString &path);
     ~Widget();
 
 protected:
@@ -19,6 +19,7 @@ protected:
     int m_highest;
     int m_entropy;
     QImage m_image;
+    QString m_path;
 };
 
 #endif // WIDGET_H
