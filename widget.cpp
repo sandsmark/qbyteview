@@ -84,11 +84,6 @@ void Widget::paintEvent(QPaintEvent *)
             d2xy(ceil(n), bc, &tx, &ty);
             painter.fillRect(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1, QColor::fromHsv(c, m_entropy, m_buckets[c] * 127 / m_highest + 128));
     }
-    QPen pen;
-    pen.setWidth(5);
-    pen.setColor(Qt::blue);
-    painter.setPen(pen);
-    painter.drawRect(QRect(0, 0, n * blockwidth, n * blockheight));
     painter.setPen(Qt::black);
     QFont fnt = font();
     fnt.setPixelSize(30);
