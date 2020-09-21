@@ -77,26 +77,31 @@ static void d2xy(unsigned count, unsigned index, unsigned *x, unsigned *y) {
 
 void Widget::paintEvent(QPaintEvent *)
 {
-    QPainter painter(this);
-
-    const qreal n = qSqrt(qCeil(qSqrt(qreal(m_data.length()))) * qCeil(qreal(qSqrt(qreal(m_data.length())))));
-    const qreal blockwidth = qreal(width()) / qCeil(n);
-    const qreal blockheight = qreal(height()) / qCeil(n);
-    qDebug() << blockwidth << blockheight << m_data.length() << width() << height() << n;
-    QElapsedTimer timer; timer.start();
-    for (int index=0; index<m_data.length(); index++) {
-        const unsigned char byte = m_data[index];
-        unsigned tx, ty;
-        d2xy(ceil(n), index, &tx, &ty);
-        painter.fillRect(QRectF(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1), QColor::fromHsv(byte, m_entropy, m_buckets[byte]));
+    if (m_image.size() != size()) {
+        m_image = QImage(size(), QImage::Format_ARGB32);
+        QPainter painter(&m_image);
+        const qreal n = qSqrt(qCeil(qSqrt(qreal(m_data.length()))) * qCeil(qreal(qSqrt(qreal(m_data.length())))));
+        const qreal blockwidth = qreal(width()) / qCeil(n);
+        const qreal blockheight = qreal(height()) / qCeil(n);
+        qDebug() << blockwidth << blockheight << m_data.length() << width() << height() << n;
+        QElapsedTimer timer; timer.start();
+        for (int index=0; index<m_data.length(); index++) {
+            const unsigned char byte = m_data[index];
+            unsigned tx, ty;
+            d2xy(ceil(n), index, &tx, &ty);
+            painter.fillRect(QRectF(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1), QColor::fromHsv(byte, m_entropy, m_buckets[byte]));
+        }
+        qDebug() << timer.elapsed() << "ms";
+        painter.setPen(Qt::black);
+        QFont fnt = font();
+        fnt.setPixelSize(30);
+        painter.setFont(fnt);
+        QRect bounding;
+        painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
+        painter.fillRect(bounding, QColor(255, 255, 255, 128));
+        painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
     }
-    qDebug() << timer.elapsed() << "ms";
-    painter.setPen(Qt::black);
-    QFont fnt = font();
-    fnt.setPixelSize(30);
-    painter.setFont(fnt);
-    QRect bounding;
-    painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
-    painter.fillRect(bounding, QColor(255, 255, 255, 128));
-    painter.drawText(rect(),Qt::AlignLeft, m_path, &bounding);
+
+    QPainter painter(this);
+    painter.drawImage(0, 0, m_image);
 }
