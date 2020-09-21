@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <qmath.h>
+#include <QElapsedTimer>
 
 Widget::Widget(const QString &path) :
     m_path(path)
@@ -78,12 +79,14 @@ void Widget::paintEvent(QPaintEvent *)
     const qreal blockwidth = qreal(width()) / qCeil(n);
     const qreal blockheight = qreal(height()) / qCeil(n);
     qDebug() << blockwidth << blockheight << m_data.length() << width() << height() << n;
+    QElapsedTimer timer; timer.start();
     for (int bc=0; bc<m_data.length(); bc++) {
             const unsigned char c = m_data[bc];
             int tx, ty;
             d2xy(ceil(n), bc, &tx, &ty);
             painter.fillRect(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1, QColor::fromHsv(c, m_entropy, m_buckets[c] * 127 / m_highest + 128));
     }
+    qDebug() << timer.elapsed() << "ms";
     painter.setPen(Qt::black);
     QFont fnt = font();
     fnt.setPixelSize(30);
