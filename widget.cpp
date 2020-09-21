@@ -20,7 +20,7 @@ Widget::Widget(const QString &path) :
     float entropy = 0;
 
     m_highest = 0;
-    for (unsigned char b=0; b < 255; b++) {
+    for (int b=0; b < 256; b++) {
         if (!m_buckets[b]) {
             continue;
         }
@@ -32,6 +32,13 @@ Widget::Widget(const QString &path) :
         entropy -= p * log(p) / log(256);
     }
     m_entropy = entropy * 255;
+
+    for (int b=0; b < 256; b++) {
+        if (!m_buckets[b]) {
+            continue;
+        }
+        m_buckets[b] = m_buckets[b] * 127 / m_highest + 128;
+    }
     qDebug() << entropy << m_entropy;
 
 
@@ -44,30 +51,27 @@ Widget::~Widget()
 
 
 //rotate/flip a quadrant appropriately
-void rot(int n, int *x, int *y, int rx, int ry) {
+static void rot(const unsigned n, unsigned *x, unsigned *y, const unsigned rx, const unsigned ry) {
     if (ry == 0) {
         if (rx == 1) {
             *x = n-1 - *x;
             *y = n-1 - *y;
         }
 
-        //Swap x and y
-        int t  = *x;
-        *x = *y;
-        *y = t;
+        std::swap(*x, *y);
     }
 }
 
-void d2xy(int n, int d, int *x, int *y) {
-    int rx, ry, s, t=d;
+static void d2xy(unsigned count, unsigned index, unsigned *x, unsigned *y) {
+    unsigned rx, ry, s;
     *x = *y = 0;
-    for (s=1; s<n; s*=2) {
-        rx = 1 & (t/2);
-        ry = 1 & (t ^ rx);
+    for (s=1; s<count; s*=2) {
+        rx = 1 & (index/2);
+        ry = 1 & (index ^ rx);
         rot(s, x, y, rx, ry);
         *x += s * rx;
         *y += s * ry;
-        t /= 4;
+        index /= 4;
     }
 }
 
@@ -80,11 +84,11 @@ void Widget::paintEvent(QPaintEvent *)
     const qreal blockheight = qreal(height()) / qCeil(n);
     qDebug() << blockwidth << blockheight << m_data.length() << width() << height() << n;
     QElapsedTimer timer; timer.start();
-    for (int bc=0; bc<m_data.length(); bc++) {
-            const unsigned char c = m_data[bc];
-            int tx, ty;
-            d2xy(ceil(n), bc, &tx, &ty);
-            painter.fillRect(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1, QColor::fromHsv(c, m_entropy, m_buckets[c] * 127 / m_highest + 128));
+    for (int index=0; index<m_data.length(); index++) {
+        const unsigned char byte = m_data[index];
+        unsigned tx, ty;
+        d2xy(ceil(n), index, &tx, &ty);
+        painter.fillRect(QRectF(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1), QColor::fromHsv(byte, m_entropy, m_buckets[byte]));
     }
     qDebug() << timer.elapsed() << "ms";
     painter.setPen(Qt::black);
