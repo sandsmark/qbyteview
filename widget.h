@@ -12,7 +12,8 @@ public:
     ~Widget();
 
 protected:
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent*) override;
 
     int m_buckets[256] = {0};
     QByteArray m_data;
@@ -20,6 +21,7 @@ protected:
     int m_entropy;
     QImage m_image;
     QString m_path;
+    QString m_overlayText;
 };
 
 #endif // WIDGET_H

@@ -9,6 +9,7 @@ CONFIG += c++11
 
 TARGET = qbyteview
 TEMPLATE = app
+QMAKE_CXXFLAGS += -g
 
 
 SOURCES += main.cpp\
