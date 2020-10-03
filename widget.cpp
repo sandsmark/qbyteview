@@ -78,7 +78,10 @@ void Widget::paintEvent(QPaintEvent *)
     if (m_image.size() != size()) {
         m_image = QImage(size(), QImage::Format_ARGB32);
         QPainter painter(&m_image);
-        const qreal n = qSqrt(qCeil(qSqrt(qreal(m_data.length()))) * qCeil(qreal(qSqrt(qreal(m_data.length())))));
+        // Size of each side
+        const qreal side = sqrt(m_data.size());
+        // Up to the next power of two
+        const unsigned n = pow(2, ceil(log2(side)));
         const qreal blockwidth = qreal(width()) / qCeil(n);
         const qreal blockheight = qreal(height()) / qCeil(n);
         qDebug() << blockwidth << blockheight << m_data.length() << width() << height() << n;
