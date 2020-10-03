@@ -49,7 +49,6 @@ Widget::~Widget()
 
 }
 
-
 //rotate/flip a quadrant appropriately
 static void rot(const unsigned n, unsigned *x, unsigned *y, const unsigned rx, const unsigned ry) {
     if (ry == 0) {
@@ -63,11 +62,10 @@ static void rot(const unsigned n, unsigned *x, unsigned *y, const unsigned rx, c
 }
 
 static void d2xy(unsigned count, unsigned index, unsigned *x, unsigned *y) {
-    unsigned rx, ry, s;
     *x = *y = 0;
-    for (s=1; s<count; s*=2) {
-        rx = 1 & (index/2);
-        ry = 1 & (index ^ rx);
+    for (unsigned s=1; s<count; s*=2) {
+        unsigned rx = 1 & (index/2);
+        unsigned ry = 1 & (index ^ rx);
         rot(s, x, y, rx, ry);
         *x += s * rx;
         *y += s * ry;
