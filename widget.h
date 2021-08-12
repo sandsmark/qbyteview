@@ -22,6 +22,8 @@ protected:
     QImage m_image;
     QString m_path;
     QString m_overlayText;
+    QVector<int> m_xPos;
+    QVector<int> m_yPos;
 };
 
 #endif // WIDGET_H

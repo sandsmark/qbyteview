@@ -41,6 +41,17 @@ Widget::Widget(const QString &path) :
         }
         m_buckets[b] = m_buckets[b] * 127 / m_highest + 128;
     }
+
+    // size of each side
+    const qreal side = sqrt(m_data.size());
+    // up to the next power of two
+    const unsigned n = pow(2, ceil(log2(side)));
+    m_xPos.resize(m_data.size());
+    m_yPos.resize(m_data.size());
+    for (int index=0; index<m_data.length(); index++) {
+        d2xy(n, index, &m_xPos[index], &m_yPos[index]);
+    }
+
     qDebug() << entropy << m_entropy;
 
 
@@ -92,10 +103,10 @@ void Widget::paintEvent(QPaintEvent *)
     if (m_image.size() != size()) {
         m_image = QImage(size(), QImage::Format_ARGB32);
         QPainter painter(&m_image);
-        // Size of each side
-        const qreal side = sqrt(m_data.size());
-        // Up to the next power of two
-        const unsigned n = pow(2, ceil(log2(side)));
+    // size of each side
+    const qreal side = sqrt(m_data.size());
+    // up to the next power of two
+    const unsigned n = pow(2, ceil(log2(side)));
         const qreal blockwidth = qreal(width()) / qCeil(n);
         const qreal blockheight = qreal(height()) / qCeil(n);
         QElapsedTimer timer; timer.start();
@@ -104,8 +115,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         for (int index=0; index<m_data.length(); index++) {
             const unsigned char byte = m_data[index];
-            unsigned tx, ty;
-            d2xy(n, index, &tx, &ty);
+            unsigned tx = m_xPos[index], ty = m_yPos[index];
             painter.fillRect(QRectF(tx * blockwidth, ty * blockheight, blockwidth + 1, blockheight + 1), QColor::fromHsv(byte, m_entropy, m_buckets[byte]));
         }
         qDebug() << "repaint in" << timer.elapsed() << "ms";
